@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>模糊查询</title>
+    <script src="./jquery-1.8.2.min.js"></script>
+    <style>
+        *{
+            list-style: none;
+            padding:0;
+            margin:0;
+        }
+        div{
+            text-align: center;
+            padding-top:20px;
+        }
+        ul{
+            padding-top:20px;
+            width:30%;
+            margin:0 50% 0 35%;
+        }
+        li{
+            padding:3px;
+            border:1px solid silver;
+            box-shadow: 1px 1px;
+        }
+    </style>
+</head>
+<body>
+<div>
+    <input type="text" id="txt">
+    <button type="button" id="btn">search</button>
+    <ul id="list">
+ 
+    </ul>
+</div>
+<script>
+    var oTxt = document.getElementById('txt');
+    var oBtn = document.getElementById('btn');
+    var oList = document.getElementById('list');
+ 
+    var fruits = [{'text': 'Makerspace Student Engineer', 'url': 'https://www.wm.edu/as/appliedscience'},
+                  {'text': 'Tribe Athletics Media Relations Student Assistants', 'url': 'http://www.tribeathletics.com/',},
+                  {'text': 'Student Equipment Manager', 'url': 'mailto:sjvernarsky@wm.edu'},
+                  {'text': 'Student Assistant/Video Assistant', 'url': 'mailto:hahend@wm.edu'},
+                  {'text': 'Intramural Sports Official', 'url': 'http://www.wm.edu/offices/wellness/campusrec/imsports/officials/index.php'},
+                  {'text': 'Lifeguard', 'url': 'http://www.wm.edu/offices/wellness/campusrec/student-employment/index.php'},
+                  {'text': 'Pre Collegiate Learner Programs Assistant', 'url': 'https://education.wm.edu/centers/cfge/'},
+                  {'text': 'Conference Services Ambassador', 'url': 'https://www.wm.edu/offices/auxiliary/conferenceservices/aboutus/summer-employment/index.php'},
+                  {'text': 'Communications Intern', 'url': 'http://mason.wm.edu/'},
+                  {'text': 'Program & Outreach Assistant', 'url': 'https://www.wm.edu/offices/global-research'},
+                  {'text': 'Level 1 Support Technician', 'url': 'https://www.wm.edu/offices/it/services/support/tsc/studentemployment/index.php'},
+                  {'text': 'Window Service Clerk', 'url': 'https://www.wm.edu/offices/facilities/services/postalservices/index.php'},
+                  {'text': 'Digital Marketing Coordinator', 'url': 'http://mason.wm.edu/'},
+                  {'text': 'Marketing Content Assistant', 'url': 'http://mason.wm.edu/'},
+                  {'text': 'MBA Programs Student Assistant', 'url': 'http://mason.wm.edu/'},
+                  {'text': 'Office Assistant', 'url': 'mailto:charee.ellison@mason.wm.edu'},
+                  {'text': 'Miller Hall Building Support', 'url': 'mailto:josh.andelin@mason.wm.edu'},
+                  {'text': 'Research Assistant (Medicare)', 'url': 'https://www.wm.edu/as/publicpolicy/schroedercenter/news/schroeder-center-announces-two-summer-research-assistant-openings.php'},
+                  {'text': 'Research Assistant (School Health Initiative Project)', 'url': 'https://www.wm.edu/as/publicpolicy/schroedercenter/news/schroeder-center-announces-two-summer-research-assistant-openings.php'},
+                  {'text': 'Box Office Associate', 'url': 'http://www.wm.edu/tsd'},
+                  {'text': 'Advancement Interns', 'url': 'https://advancement.wm.edu/come-work-with-us/internships/'}];
+
+    //点击事件
+    oBtn.addEventListener('click', function(){
+        var keyWord = oTxt.value;
+        // var fruitList = searchByIndexOf(keyWord,fruits);
+        console.log(positions);
+        var fruitList = searchByRegExp(keyWord, fruits);
+        renderFruits(fruitList);
+    }, false);
+    //回车查询
+    oTxt.addEventListener('keydown', function(e) {
+        if(e.keyCode == 13){
+            var keyWord = oTxt.value;
+            var fruitList = searchByIndexOf(keyWord,fruits);
+            // var fruitList = searchByRegExp(keyWord, fruits);
+            renderFruits(fruitList);
+        }
+    }, false);
+    var cpLock = false;
+    $('#txt').on('compositionstart', function () {
+        cpLock = true;
+        // console.log("不搜索")
+    });
+    $('#txt').on('compositionend', function () {
+        cpLock = false;
+        // console.log("汉字搜索");
+        var keyWord = oTxt.value;
+        var fruitList = searchByIndexOf(keyWord,fruits);
+        // var fruitList = searchByRegExp(keyWord, fruits);
+        renderFruits(fruitList);
+    });
+    $('#txt').on('input', function () {
+        if (!cpLock) {
+            console.log("字母搜索")
+            var keyWord = oTxt.value;
+            var fruitList = searchByIndexOf(keyWord,fruits);
+            // var fruitList = searchByRegExp(keyWord, fruits);
+            renderFruits(fruitList);
+        }
+    });
+    function renderFruits(list) {
+        if(!(list instanceof Array)){
+            return ;
+        }
+        oList.innerHTML = '';
+        var len = list.length;
+        var item = null;
+        for(var i=0;i<len;i++){
+            item = document.createElement('li');
+            item.innerHTML = '<a href="' + list[i]['url'] + '">' + list[i]['text'] + '</a>';
+            oList.appendChild(item);
+        }
+    }
+    //模糊匹配的时候如果不区分大小写，可以使用toLowerCase()或者toUpperCase()转换之后去匹配。
+ 
+    //模糊查询1:利用字符串的indexOf方法
+    function searchByIndexOf(keyWord, list){
+        if(!(list instanceof Array)){
+            return ;
+        }
+        var len = list.length;
+        var arr = [];
+        for(var i=0;i<len;i++){
+            //如果字符串中不包含目标字符会返回-1
+            if(list[i]['text'].indexOf(keyWord)>=0){
+                arr.push(list[i]);
+            }
+        }
+        return arr;
+    }
+    //正则匹配
+    function searchByRegExp(keyWord, list){
+        if(!(list instanceof Array)){
+            return ;
+        }
+        var len = list.length;
+        var arr = [];
+        var reg = new RegExp(keyWord);
+        for(var i=0;i<len;i++){
+            //如果字符串中不包含目标字符会返回-1
+            if(list[i]['text'].match(reg)){
+                arr.push(list[i]);
+            }
+        }
+        return arr;
+    }
+    renderFruits(fruits);
+</script>
+</body>
+</html>
